@@ -98,7 +98,7 @@
     <link href="https://younman.com/2022/07/10/go%E5%B7%A5%E7%A8%8B-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7wire/"/>
     <id>https://younman.com/2022/07/10/go%E5%B7%A5%E7%A8%8B-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7wire/</id>
     <published>2022-07-10T02:22:34.000Z</published>
-    <updated>2022-11-27T05:49:18.610Z</updated>
+    <updated>2022-11-27T10:34:19.172Z</updated>
     
     
     <summary type="html">&lt;p&gt;在一个应用程序中，我们需要创建很多对象，也需要去管理这些对象的依赖关系。&lt;/p&gt;</summary>
