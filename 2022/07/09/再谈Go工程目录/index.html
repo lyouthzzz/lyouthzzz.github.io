@@ -1,0 +1,580 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="为了提高程序的可读性与可维护性，我们应该为软件设计良好的目录结构，这与规范的编码风格同等重要。">
+  <meta name="author" content="youn">
+  <meta name="keywords" content="">
+  
+  <title>再谈Go工程目录 - youn</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"younman.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="youn" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>写作是一种深度思考</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="再谈Go工程目录">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-09 11:27" pubdate>
+        2022年7月9日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">再谈Go工程目录</h1>
+            
+            <div class="markdown-body">
+              <p>为了提高程序的可读性与可维护性，我们应该为软件设计良好的目录结构，这与规范的编码风格同等重要。</p>
+<span id="more"></span>
+
+<p>在go中，社区定义了Go应用程序项目的基本布局，大家可自行链接<a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout" title="project-layout"><strong>project-layout</strong></a>。它不是核心Go开发团队定义的官方标准，但是它是Go生态一些常见项目的布局模式，并且是受大家认可推崇的布局。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout" title="project-layout"><strong>project-layout</strong></a>为我们提供了整体布局，但是未提供开发者设计更详细的分层布局。接下来我会详细讲讲如何去设计分层，去支持应用复杂的开发任务。</p>
+<p>由于我们团队内部使用的是<a target="_blank" rel="noopener" href="https://github.com/go-kratos/kratos" title="kratos"><strong>kratos</strong></a>微服务框架接，所以我们会基于<a target="_blank" rel="noopener" href="https://github.com/go-kratos/kratos" title="kratos"><strong>kratos</strong></a>社区推崇的目录来讲一讲我们团队对于该工程目录实践的一些思考。</p>
+<h2 id="工程目录"><a href="#工程目录" class="headerlink" title="工程目录"></a>工程目录</h2><h3 id="api"><a href="#api" class="headerlink" title="api"></a>api</h3><ul>
+<li><p>  定义proto IDL文件。</p>
+</li>
+<li><p>  定义errors.proto文件。管理服务错误码。</p>
+</li>
+<li><p>  定义service.proto文件。管理服务接口定义。</p>
+</li>
+</ul>
+<h3 id="cmd"><a href="#cmd" class="headerlink" title="cmd"></a>cmd</h3><ul>
+<li><p>  项目APP的入口，启动服务的地方。</p>
+</li>
+<li><p>  每个应用程序的目录名应该与你想要的可执行文件的名称相匹配。</p>
+</li>
+<li><p>  通常有一个小的 <code>main</code> 函数，从 <code>/internal</code> 和 <code>/pkg</code> 目录导入和调用代码，除此之外没有别的东西。</p>
+</li>
+</ul>
+<h3 id="configs"><a href="#configs" class="headerlink" title="configs"></a>configs</h3><ul>
+<li>  定义配置文件。</li>
+</ul>
+<h3 id="deployments"><a href="#deployments" class="headerlink" title="deployments"></a>deployments</h3><ul>
+<li>  定义服务部署文件。（例如<code>Dockerfile</code>、<code>docker-compose.yaml</code>、<code>kubernetes.service.yaml</code>）。</li>
+</ul>
+<h3 id="docs"><a href="#docs" class="headerlink" title="docs"></a>docs</h3><ul>
+<li>  管理项目文档。</li>
+</ul>
+<h3 id="test"><a href="#test" class="headerlink" title="test"></a>test</h3><ul>
+<li>  管理项目测试代码。</li>
+</ul>
+<h3 id="pkg"><a href="#pkg" class="headerlink" title="pkg"></a>pkg</h3><ul>
+<li><p>  外部应用程序可以使用的库代码。(例如 <code>/pkg/mypubliclib</code>)。</p>
+</li>
+<li><p>  放置一些项目内或者跨应用的共同可用的代码。</p>
+</li>
+</ul>
+<h3 id="internal"><a href="#internal" class="headerlink" title="internal"></a>internal</h3><p>internal目录是我们重点设计目录。</p>
+<h4 id="server"><a href="#server" class="headerlink" title="server"></a>server</h4><ul>
+<li>  注册服务api，构建以及<code>HTTP</code>和<code>gRPC</code>服务实例。</li>
+</ul>
+<h4 id="service"><a href="#service" class="headerlink" title="service"></a>service</h4><ul>
+<li><p>  实现api层proto定义的service interface。</p>
+</li>
+<li><p>  编排biz层的usecase对象。</p>
+</li>
+</ul>
+<h4 id="biz"><a href="#biz" class="headerlink" title="biz"></a>biz</h4><ul>
+<li><p>  biz开发<code>usecase</code>对象。负责具体业务的实现。</p>
+</li>
+<li><p>  依赖<code>domain</code>定义的<code>interface</code>（例如 <code>FacadeInterface</code>、<code>RepoInterface</code>等）。</p>
+</li>
+<li><p>  <code>usecase</code>之间不可以相互依赖。业务是独立的，依赖会导致耦合。一个业务迭代的变更不应该影响到别的业务。</p>
+</li>
+</ul>
+<h4 id="domain"><a href="#domain" class="headerlink" title="domain"></a>domain</h4><ul>
+<li><p>  不依赖任何别的package。</p>
+</li>
+<li><p>  负责外部定义接口（比如<code>FacadeInterface</code>、<code>RepoInterface</code>）以及相关的DTO对象。</p>
+</li>
+<li><p>  负责业务错误码的定义。</p>
+</li>
+<li><p>  负责<code>DO</code>对象（<code>domain object</code>）以及<code>ADO</code>（<code>aggregate domain object</code>）的定义。</p>
+</li>
+</ul>
+<h4 id="facade"><a href="#facade" class="headerlink" title="facade"></a>facade</h4><ul>
+<li>  防腐层设计。实现<code>domain</code>的<code>FacadeInterface</code>，和外部接口交互。</li>
+</ul>
+<h4 id="mock"><a href="#mock" class="headerlink" title="mock"></a>mock</h4><ul>
+<li>  mock domain层接口。方便做<code>biz</code>层<code>usecase</code>对象的单元测试。</li>
+</ul>
+<h4 id="data"><a href="#data" class="headerlink" title="data"></a>data</h4><ul>
+<li><p>  实现domain层定义的数据相关的接口（比如<code>RepoInterface</code>）。</p>
+</li>
+<li><p>  和数据层交互（比如<code>mq</code>、<code>db</code>、<code>cache</code>）。</p>
+</li>
+<li><p>  负责<code>PO</code>（<code>persistent object</code>）对象的定义。</p>
+</li>
+</ul>
+<p>之前有写过一篇关于工程目录的文章<a href="https://younman.com/2022/02/19/%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%AE%BE%E8%AE%A1/" title="工程目录设计"><strong>工程目录设计</strong></a>。层级目录设计以及之间的依赖如下图：</p>
+<p><img src="/images/%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%AE%BE%E8%AE%A1%E6%B5%81%E8%BD%AC%E5%9B%BE.jpg" srcset="/img/loading.gif" lazyload alt="工程目录设计-版本1"></p>
+<p>具体结构文件如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">├── internal<br>│   ├── service<br>│   │   ├── service.go<br>│   │   └── user.go<br>│   ├── data<br>│   │   ├── data.go<br>│   │   ├── model<br>│   │   │   └── user.go<br>│   │   └── user.go<br>│   ├── domain<br>│   │   └── user.go<br>│   ├── facade<br>│   │   └── facade.go<br>│   ├── server<br>│   │   ├── grpc.go<br>│   │   ├── http.go<br>│   │   └── server.go<br>│   └── biz<br>│       ├── biz.go<br>│       └── user.go<br></code></pre></td></tr></table></figure>
+
+<p>我们以前的做法是将RepoInterface、Errors、定义在biz层，为了是可以让biz层不依赖别的东西，负责聚合完整的业务。目录如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">├── biz<br>│   ├── biz.go<br>│   └── user_usecase.go<br></code></pre></td></tr></table></figure>
+
+<p>user.go文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">var ErrUserNotFound = errors.New(<span class="hljs-string">&quot;user: not found&quot;</span>)<br><br><span class="hljs-built_in">type</span> UserRepo interface &#123;<br>  GetUser(ctx context.Context, id uint) (*domain.User, error)<br>&#125;<br><br><span class="hljs-built_in">type</span> UserUsecase struct &#123;<br>  repo UserRepo<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>随着工程慢慢变得复杂，<code>biz</code>层也会慢慢变得复杂，这个时候我们会去根据业务去分包。目录如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">├── biz<br>│   ├── biz.go<br>│   └── user<br>│       └── usecase.go<br></code></pre></td></tr></table></figure>
+
+<p>&#x20;随着工程目录的变化就会出现一些问题：</p>
+<ul>
+<li>  循环依赖。比如<code>AUsecase</code>需要依赖<code>BRepoInterface</code>，<code>BUsecase</code>需要依赖<code>ARepoInterface</code>，同样的<code>errors</code>也是如此。这样就会导致循环依赖，编译错误。</li>
+</ul>
+<p>第一版的设计还有一个问题就是，我们允许<code>usecase</code>之间可以相互依赖，当时的想法就是可以复用<code>usecase</code>的代码，并且可以复用<code>usecase</code>抛出来的错误。</p>
+<p>但是后来我们准备去做<code>usecase</code>层单元测试的时候，发现非常的难做。因为如果某个usecase依赖其他<code>usecase</code>，想要做该usecase的单元测试，就需要将依赖的所有的<code>usecase</code>都要做mock。</p>
+<p>后来我们重新思考了DDD的领域设计，最终抛弃了这样的依赖。</p>
+<p>第二版的工程层级目录设计以及之间的依赖如下图：</p>
+<p><img src="/images/%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%AE%BE%E8%AE%A1-%E7%89%88%E6%9C%AC2.png" srcset="/img/loading.gif" lazyload alt="工程目录设计-版本2"></p>
+<p>新的版本是由<code>domain</code>层接管<code>biz</code>层的接口以及<code>errors</code>的定义。这样其实<code>biz</code>只需要专注业务就行，并且也不会有以上循环以来的情况出现，因为接口以及errors的定义都放在了<code>domain</code>层。</p>
+<p>具体结构文件如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash">├── internal<br>│   ├── biz<br>│   │   ├── biz.go<br>│   │   ├── order<br>│   │   │   └── order.go<br>│   │   └── user<br>│   │       └── user.go<br>│   ├── conf<br>│   │   ├── conf.pb.go<br>│   │   └── conf.proto<br>│   ├── data<br>│   │   ├── data.go<br>│   │   ├── model<br>│   │   │   └── user.go<br>│   │   └── user.go<br>│   ├── domain<br>│   │   ├── order<br>│   │   │   └── order.go<br>│   │   └── user<br>│   │       └── user.go<br>│   ├── facade<br>│   │   ├── facade.go<br>│   │   └── order<br>│   │       └── client.go<br>│   ├── mock<br>│   │   └── domain<br>│   │       ├── order<br>│   │       └── user<br>│   ├── server<br>│   │   ├── grpc.go<br>│   │   ├── http.go<br>│   │   └── server.go<br>│   └── service<br>│       ├── order.go<br>│       ├── service.go<br>│       └── user.go<br></code></pre></td></tr></table></figure>
+
+<p>这是新版目录对于之前问题的优化。在内部工程的实践效果也是非常不错的。</p>
+<p>数据流转对象：</p>
+<ul>
+<li><p>  <code>DTO</code>（<code>Data Transfer Objcet</code>）数据传输对象。HTTP/GRPC消息的载体。</p>
+</li>
+<li><p>  <code>DO</code>（<code>Domain Objcet</code>）领域模型。承载业务抽象出来的对象，并包含自身的一些业务逻辑。</p>
+</li>
+<li><p>  <code>PO</code>（<code>Persistent Objcet</code>）持久化对象。数据库建模对象。仅仅包含表名，字段的定义以及主键、外键、索引等表相关的定义。</p>
+</li>
+</ul>
+<h2 id="example"><a href="#example" class="headerlink" title="example"></a>example</h2><ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/lyouthzzz/go-web-layout" title="go-web-layout"><strong>go-web-layout</strong></a></li>
+</ul>
+<p>References</p>
+<ul>
+<li><p>  <a target="_blank" rel="noopener" href="https://go-kratos.dev/blog/go-project-layout/" title="https://go-kratos.dev/blog/go-project-layout">https://go-kratos.dev/blog/go-project-layout</a></p>
+</li>
+<li><p>  <a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout" title="https://github.com/golang-standards/project-layout">https://github.com/golang-standards/project-layout</a></p>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/10/go%E5%B7%A5%E7%A8%8B-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7wire/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">go工程-依赖注入工具wire</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/30/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E9%83%A8%E7%BD%B2%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                        <span class="hidden-mobile">如何快速部署一些常见的中间件？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

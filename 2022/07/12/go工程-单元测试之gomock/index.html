@@ -1,0 +1,570 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="在开发中，我们需要编写很多测试代码去保证我们代码的健壮性。
+如果一个对象中有大量的接口依赖的时候，我们往往无法注入真实的接口对象，这个时候就是gomock大显身手的时候了。">
+  <meta name="author" content="youn">
+  <meta name="keywords" content="">
+  
+  <title>go工程-单元测试之gomock - youn</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"younman.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="youn" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>写作是一种深度思考</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="go工程-单元测试之gomock">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-12 02:25" pubdate>
+        2022年7月12日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">go工程-单元测试之gomock</h1>
+            
+            <div class="markdown-body">
+              <p>在开发中，我们需要编写很多测试代码去保证我们代码的健壮性。</p>
+<p>如果一个对象中有大量的接口依赖的时候，我们往往无法注入真实的接口对象，这个时候就是gomock大显身手的时候了。</p>
+<span id="more"></span>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/golang/mock" title="gomock"><strong>gomock</strong></a> 是官方提供的 mock 框架，同时还提供了 mockgen 工具用来辅助生成测试代码。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>go version &lt; 1.16</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">GO111MODULE=on <span class="hljs-keyword">go</span> get github.com/golang/mock/mockgen@v1<span class="hljs-number">.6</span><span class="hljs-number">.0</span><br></code></pre></td></tr></table></figure>
+
+<p>go version 1.16+</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">go</span> install github.com/golang/mock/mockgen@v1<span class="hljs-number">.6</span><span class="hljs-number">.0</span><br></code></pre></td></tr></table></figure>
+
+<p>这里会将<code>mockgen</code>工具添加到<code>$GOPATH/bin</code>下，如果想要使用，请确保<code>$GOPATH/bin</code>已经添加在<code>$PATH</code>下。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs go"># mockgen -h<br>mockgen has two modes of operation: source and reflect.<br><br>Source mode generates mock interfaces from a source file.<br>It is enabled by using the -source flag. Other flags that<br>may be useful in this mode are -imports and -aux_files.<br>Example:<br>  mockgen -source=foo.<span class="hljs-keyword">go</span> [other options]<br><br>Reflect mode generates mock interfaces by building a program<br>that uses reflection to understand interfaces. It is enabled<br>by passing two non-flag arguments: an <span class="hljs-keyword">import</span> path, and a<br>comma-separated list of symbols.<br>Example:<br>  mockgen database/sql/driver Conn,Driver<br><br>  -aux_files <span class="hljs-keyword">string</span><br>      (source mode) Comma-separated pkg=path pairs of auxiliary Go source files.<br>  -build_flags <span class="hljs-keyword">string</span><br>      (reflect mode) Additional flags <span class="hljs-keyword">for</span> <span class="hljs-keyword">go</span> build.<br>  -copyright_file <span class="hljs-keyword">string</span><br>      Copyright file used to add copyright header<br>  -debug_parser<br>      Print out parser results only.<br>  -destination <span class="hljs-keyword">string</span><br>      Output file; defaults to stdout.<br>  -exec_only <span class="hljs-keyword">string</span><br>      (reflect mode) If set, execute this reflection program.<br>  -imports <span class="hljs-keyword">string</span><br>      (source mode) Comma-separated name=path pairs of explicit imports to use.<br>  -mock_names <span class="hljs-keyword">string</span><br>      Comma-separated interfaceName=mockName pairs of explicit mock names to use. Mock names <span class="hljs-keyword">default</span> to <span class="hljs-string">&#x27;Mock&#x27;</span>+ interfaceName suffix.<br>  -<span class="hljs-keyword">package</span> <span class="hljs-keyword">string</span><br>      Package of the generated code; defaults to the <span class="hljs-keyword">package</span> of the input with a <span class="hljs-string">&#x27;mock_&#x27;</span> prefix.<br>  -prog_only<br>      (reflect mode) Only generate the reflection program; write it to stdout and exit.<br>  -self_package <span class="hljs-keyword">string</span><br>      The full <span class="hljs-keyword">package</span> <span class="hljs-keyword">import</span> path <span class="hljs-keyword">for</span> the generated code. The purpose of this flag is to prevent <span class="hljs-keyword">import</span> cycles in the generated code by trying to include its own <span class="hljs-keyword">package</span>. This can happen <span class="hljs-keyword">if</span> the mock<span class="hljs-string">&#x27;s package is set to one of its inputs (usually the main one) and the output is stdio so mockgen cannot detect the final output package. Setting this flag will then tell mockgen which import to exclude.</span><br><span class="hljs-string">  -source string</span><br><span class="hljs-string">      (source mode) Input Go source file; enables source mode.</span><br><span class="hljs-string">  -version</span><br><span class="hljs-string">      Print version.</span><br><span class="hljs-string">  -write_package_comment</span><br><span class="hljs-string">      Writes package documentation comment (godoc) if true. (default true)</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>在mockgen中，支持两种生成模式：</p>
+<ol>
+<li> source：从源文件生成mock接口</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">mockgen -source=foo.<span class="hljs-keyword">go</span> [other options]<br></code></pre></td></tr></table></figure>
+
+<p>&#x20; 2. reflect：通过使用反射程序来生成mock接口。它通过传递两个非标志参数来启用：导入路径和逗号分隔的接口列表。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">mockgen database/sql/driver Conn,Driver<br><br></code></pre></td></tr></table></figure>
+
+<p>从本质上来讲，两种方式生成的mock代码并没有什么区别。因此选择合适的就可以了。</p>
+<p>mockgen工具可以帮助我们自动生成接口的打桩代码。</p>
+<ul>
+<li><p>  -source：设置需要mock的接口文件。</p>
+</li>
+<li><p>  -destination：设置mock的接口文件输出的地方，默认打印在标准输出中。</p>
+</li>
+<li><p>  -package：设置mock输出文件的包名，默认是****加上文件名。</p>
+</li>
+</ul>
+<p>以<a target="_blank" rel="noopener" href="https://github.com/lyouthzzz/go-web-layout/blob/main/internal/domain/order/order.go" title="order.go"><strong>order.go</strong></a>为例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">//go:generate mockgen -source order.go -destination ../../mock/domain/order/order_mock.go -package=order</span><br><br><span class="hljs-keyword">type</span> IOrderClient <span class="hljs-keyword">interface</span> &#123;<br>  GetOrder(context.Context, <span class="hljs-keyword">uint</span>) (*Order, error)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>执行下面命令可以将internal/domain/order/order.go的接口mock代码输出到internal/mock/domain/order/order_mock.go，包名是order：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">mockgen -source internal/domain/order/order.<span class="hljs-keyword">go</span> -destination internal/mock/domain/order/order_mock.<span class="hljs-keyword">go</span> -<span class="hljs-keyword">package</span>=order<br></code></pre></td></tr></table></figure>
+
+<p>我们可以定义<code>//go:generate</code>命令，然后执行<code>go generate ./...</code>可以自动生成打桩代码到指定目录。</p>
+<h2 id="打桩代码"><a href="#打桩代码" class="headerlink" title="打桩代码"></a>打桩代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// MockIOrderClient is a mock of IOrderClient interface.</span><br><span class="hljs-keyword">type</span> MockIOrderClient <span class="hljs-keyword">struct</span> &#123;<br>  ctrl     *gomock.Controller<br>  recorder *MockIOrderClientMockRecorder<br>&#125;<br><br><span class="hljs-comment">// MockIOrderClientMockRecorder is the mock recorder for MockIOrderClient.</span><br><span class="hljs-keyword">type</span> MockIOrderClientMockRecorder <span class="hljs-keyword">struct</span> &#123;<br>  mock *MockIOrderClient<br>&#125;<br><br><span class="hljs-comment">// NewMockIOrderClient creates a new mock instance.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewMockIOrderClient</span><span class="hljs-params">(ctrl *gomock.Controller)</span> *<span class="hljs-title">MockIOrderClient</span></span> &#123;<br>  mock := &amp;MockIOrderClient&#123;ctrl: ctrl&#125;<br>  mock.recorder = &amp;MockIOrderClientMockRecorder&#123;mock&#125;<br>  <span class="hljs-keyword">return</span> mock<br>&#125;<br><br><span class="hljs-comment">// EXPECT returns an object that allows the caller to indicate expected use.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *MockIOrderClient)</span> <span class="hljs-title">EXPECT</span><span class="hljs-params">()</span> *<span class="hljs-title">MockIOrderClientMockRecorder</span></span> &#123;<br>  <span class="hljs-keyword">return</span> m.recorder<br>&#125;<br><br><span class="hljs-comment">// GetOrder mocks base method.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *MockIOrderClient)</span> <span class="hljs-title">GetOrder</span><span class="hljs-params">(arg0 context.Context, arg1 <span class="hljs-keyword">uint</span>)</span> <span class="hljs-params">(*order.Order, error)</span></span> &#123;<br>  m.ctrl.T.Helper()<br>  ret := m.ctrl.Call(m, <span class="hljs-string">&quot;GetOrder&quot;</span>, arg0, arg1)<br>  ret0, _ := ret[<span class="hljs-number">0</span>].(*order.Order)<br>  ret1, _ := ret[<span class="hljs-number">1</span>].(error)<br>  <span class="hljs-keyword">return</span> ret0, ret1<br>&#125;<br><br><span class="hljs-comment">// GetOrder indicates an expected call of GetOrder.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(mr *MockIOrderClientMockRecorder)</span> <span class="hljs-title">GetOrder</span><span class="hljs-params">(arg0, arg1 <span class="hljs-keyword">interface</span>&#123;&#125;)</span> *<span class="hljs-title">gomock</span>.<span class="hljs-title">Call</span></span> &#123;<br>  mr.mock.ctrl.T.Helper()<br>  <span class="hljs-keyword">return</span> mr.mock.ctrl.RecordCallWithMethodType(mr.mock, <span class="hljs-string">&quot;GetOrder&quot;</span>, reflect.TypeOf((*MockIOrderClient)(<span class="hljs-literal">nil</span>).GetOrder), arg0, arg1)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>参数（Eq, Any, Not, Nil）</p>
+<ul>
+<li><p>  <code>Eq(value)</code> 表示与 value 等价的值。</p>
+</li>
+<li><p>  <code>Any()</code> 可以用来表示任意的入参。</p>
+</li>
+<li><p>  <code>Not(value)</code> 用来表示非 value 以外的值。</p>
+</li>
+<li><p>  <code>Nil()</code> 表示 nil 值</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go">orderClient.EXPECT().GetOrder(gomock.Eq(context.Background()), gomock.Any()).Return(<span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>)<br>orderClient.EXPECT().GetOrder(gomock.Eq(context.Background()), gomock.Not(<span class="hljs-keyword">uint</span>(<span class="hljs-number">111</span>))).Return(<span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>)<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>返回值（Return, DoAndReturn）</p>
+<ul>
+<li><p>  <code>Return()</code>。直接返回数据。</p>
+</li>
+<li><p>  <code>DoAndReturn(f interface&#123;&#125;)</code>。f的函数签名和接口保持一致。</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go">orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Eq(<span class="hljs-keyword">uint</span>(<span class="hljs-number">111</span>))).Return(<span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>)<br>orderClient.EXPECT().GetOrder(gomock.Eq(context.Background()), gomock.Not(<span class="hljs-keyword">uint</span>(<span class="hljs-number">111</span>))).DoAndReturn(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(ctx context.Context, id <span class="hljs-keyword">uint</span>)</span> <span class="hljs-params">(*orderdomain.Order, error)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> id == <span class="hljs-number">1111</span> &#123;<br>      fmt.Println(<span class="hljs-string">&quot;1111&quot;</span>)<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      fmt.Println(id)<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span><br>  &#125;)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>调用次数（Times）</p>
+<ul>
+<li><p>  <code>Times()</code> 断言 Mock 方法被调用的次数。</p>
+</li>
+<li><p>  <code>MaxTimes()</code> 最大次数。</p>
+</li>
+<li><p>  <code>MinTimes()</code> 最小次数。</p>
+</li>
+<li><p>  <code>AnyTimes()</code> 任意次数（包括 0 次）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Eq(<span class="hljs-keyword">uint</span>(<span class="hljs-number">111</span>))).Return(<span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>).AnyTimes()<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>  调用顺序（InOrder）</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">gomock.InOrder(<br>  orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Any()).Return(o, <span class="hljs-literal">nil</span>),<br>  orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Eq(<span class="hljs-keyword">uint</span>(<span class="hljs-number">1</span>))).Return(o, retErr).AnyTimes(),<br>)<br></code></pre></td></tr></table></figure>
+
+<p>第一次调用会返回o, nil</p>
+<p>第二次调用会返回o, retErr</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>接下来写一个order_test.go来看一下如何使用mock文件。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestUsecase_GetOrder</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>ctl := gomock.NewController(t)<br>  <span class="hljs-keyword">defer</span> ctl.Finish()<br>  orderClient := order.NewMockIOrderClient(ctl)<br>  orderUc := NewOrderUsecase(orderClient)<br><br>  o := &amp;orderdomain.Order&#123;Id: <span class="hljs-number">1</span>, OrderName: <span class="hljs-string">&quot;name&quot;</span>&#125;<br>  retErr := errors.New(<span class="hljs-string">&quot;order: not found&quot;</span>)<br>  gomock.InOrder(<br>    orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Any()).Return(o, <span class="hljs-literal">nil</span>),<br>    orderClient.EXPECT().GetOrder(gomock.Any(), gomock.Eq(<span class="hljs-keyword">uint</span>(<span class="hljs-number">1</span>))).Return(o, retErr).AnyTimes(),<br>  )<br><br>  _order, err := orderUc.GetOrder(context.Background(), <span class="hljs-keyword">uint</span>(<span class="hljs-number">1</span>))<br>  require.NoError(t, err)<br>  require.Equal(t, o, _order)<br><br>  _order, err = orderUc.GetOrder(context.Background(), <span class="hljs-keyword">uint</span>(<span class="hljs-number">1</span>))<br>  require.Equal(t, retErr, err)<br>  require.Equal(t, o, _order)<br><br>  _order, err = orderUc.GetOrder(context.Background(), <span class="hljs-keyword">uint</span>(<span class="hljs-number">1</span>))<br>  require.Equal(t, retErr, err)<br>  require.Equal(t, o, _order)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li><p> 实例化gomock controller对象。</p>
+</li>
+<li><p> 实例化IOrderClient对象。</p>
+</li>
+<li><p> 设置IOrderClient.GetOrder的入参和出参，入参可以使用Matcher对象设置匹配规则，匹配规则后会返回出参，否则会报错。</p>
+</li>
+<li><p> 调用OrderUsecase方法。</p>
+</li>
+</ol>
+<p>这样我们就简单完成了OrderUsecase的单元测试了。</p>
+<p>在单元测试中，gomock给我们提供了极大的便利。我们可以mock掉许多复杂的依赖，做很多的测试用例来保证业务的正确性。</p>
+<h2 id="examples"><a href="#examples" class="headerlink" title="examples"></a>examples</h2><ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/lyouthzzz/go-web-layout" title="go-web-layout"><strong>go-web-layout</strong></a></li>
+</ul>
+<h2 id="references"><a href="#references" class="headerlink" title="references"></a>references</h2><ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/golang/mock" title="https://github.com/golang/mock">https://github.com/golang/mock</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/15/go%E5%B7%A5%E7%A8%8B-Dockefile%E5%AE%9E%E8%B7%B5/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">go工程-Dockefile实践</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/10/go%E5%B7%A5%E7%A8%8B-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7wire/">
+                        <span class="hidden-mobile">go工程-依赖注入工具wire</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
