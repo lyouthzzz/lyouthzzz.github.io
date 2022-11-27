@@ -52,7 +52,7 @@
     <link href="https://younman.com/2022/08/15/FunctionOptionsDesign/"/>
     <id>https://younman.com/2022/08/15/FunctionOptionsDesign/</id>
     <published>2022-08-15T15:27:48.000Z</published>
-    <updated>2022-08-15T15:49:00.921Z</updated>
+    <updated>2022-11-27T13:34:26.604Z</updated>
     
     
     <summary type="html">&lt;p&gt;在编程中，我们会编写很多对象的构造函数。如何优雅的设计对象的构造函数是本篇文章的主题，并且会引出介绍Go语言中流行的&lt;code&gt;Function Options&lt;/code&gt;设计模式。&lt;/p&gt;</summary>
@@ -67,7 +67,7 @@
     <link href="https://younman.com/2022/07/15/go%E5%B7%A5%E7%A8%8B-Dockefile%E5%AE%9E%E8%B7%B5/"/>
     <id>https://younman.com/2022/07/15/go%E5%B7%A5%E7%A8%8B-Dockefile%E5%AE%9E%E8%B7%B5/</id>
     <published>2022-07-15T14:57:30.000Z</published>
-    <updated>2022-07-15T15:06:55.875Z</updated>
+    <updated>2022-11-27T13:34:42.115Z</updated>
     
     
     <summary type="html">&lt;p&gt;在项目工程中，最重要的一环就是部署。而Docker容器部署是最方便我们去管理服务应用的。&lt;/p&gt;</summary>
@@ -113,7 +113,7 @@
     <link href="https://younman.com/2022/07/09/%E5%86%8D%E8%B0%88Go%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95/"/>
     <id>https://younman.com/2022/07/09/%E5%86%8D%E8%B0%88Go%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95/</id>
     <published>2022-07-09T03:27:04.000Z</published>
-    <updated>2022-07-10T02:42:29.629Z</updated>
+    <updated>2022-11-27T13:35:02.931Z</updated>
     
     
     <summary type="html">&lt;p&gt;为了提高程序的可读性与可维护性，我们应该为软件设计良好的目录结构，这与规范的编码风格同等重要。&lt;/p&gt;</summary>
@@ -173,7 +173,7 @@
     <link href="https://younman.com/2022/02/19/%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%AE%BE%E8%AE%A1/"/>
     <id>https://younman.com/2022/02/19/%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%AE%BE%E8%AE%A1/</id>
     <published>2022-02-19T07:57:00.000Z</published>
-    <updated>2022-04-09T09:49:46.717Z</updated>
+    <updated>2022-11-27T13:35:25.239Z</updated>
     
     
     <summary type="html">&lt;p&gt;借鉴&lt;a href=&quot;https://github.com/go-kratos/kratos&quot;&gt;go-kraotos&lt;/a&gt;，以及DDD领域模型的设计思想，设计出的通用的面向GO WEB开发的工程目录。&lt;/p&gt;</summary>
