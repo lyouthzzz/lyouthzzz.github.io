@@ -586,8 +586,8 @@
 
 <p>总之：</p>
 <ul>
-<li>  <strong>当声明一个未初始化的变量时，请使用 <strong><strong><code>var</code></strong></strong> 语法</strong></li>
-<li>  **当声明并明确初始化变量时，请使用 ****<code>:=</code>**</li>
+<li>  <strong>当声明一个未初始化的变量时，请使用</strong><code>var</code> 语法</li>
+<li>  <strong>当声明并明确初始化变量时，请使用</strong><code>:=</code></li>
 </ul>
 <br>
 
@@ -1270,24 +1270,24 @@
 <p>我认为这是<strong>Russ Cox</strong>观察到的错误处理可能会掩盖函数操作的良好示例。让我们看一个改进版本。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">CountLines</span><span class="hljs-params">(r io.Reader)</span> <span class="hljs-params">(<span class="hljs-keyword">int</span>, error)</span></span> &#123;<br>  sc := bufio.NewScanner(r)<br>  lines := <span class="hljs-number">0</span><br><br>  <span class="hljs-keyword">for</span> sc.Scan() &#123;<br>    lines++<br>  &#125;<br>  <span class="hljs-keyword">return</span> lines, sc.Err()<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>这个改进版本将使用**<code>bufio.Scanner</code><strong>代替</strong><code>bufio.Reader</code>**。</p>
+<p>这个改进版本将使用<code>bufio.Scanner</code><strong>代替</strong><code>bufio.Reader</code>。</p>
 <br>
 
 <p>在幕后，<code>bufio.Scanner</code>使用<code>bufio.Reader</code>，但它添加了一个很好的抽象层，有助于消除遮盖<code>CountLines</code>操作的错误处理。</p>
 <br>
 
 <blockquote>
-<p>**NOTE： bufio.Scanner可以扫描任何模式，但默认情况下它会查找换行符。 **</p>
+<p>NOTE： bufio.Scanner可以扫描任何模式，但默认情况下它会查找换行符。 </p>
 </blockquote>
 <br>
 
-<p>方法**<code>sc.Scan()</code><strong>返回</strong><code>true</code>**，如果扫描器匹配了一行文本并且没有遇到错误。因此，我们的for循环体仅在扫描器缓冲区中有一行文本时调用。这意味着我们修订后的<code>CountLines</code>正确处理了没有尾随换行符的情况，也处理了文件为空的情况。</p>
+<p>方法<code>sc.Scan()</code><strong>返回</strong><code>true</code>，如果扫描器匹配了一行文本并且没有遇到错误。因此，我们的for循环体仅在扫描器缓冲区中有一行文本时调用。这意味着我们修订后的<code>CountLines</code>正确处理了没有尾随换行符的情况，也处理了文件为空的情况。</p>
 <br>
 
 <p>其次，由于<code>sc.Scan</code>遇到错误时会返回<code>false</code>，因此我们的for循环将在达到文件结尾或遇到错误时退出。<code>bufio.Scanner</code>类型记忆它遇到的第一个错误，我们可以使用<code>sc.Err()</code>方法在退出循环后恢复该错误。</p>
 <br>
 
-<p>最后，**<code>sc.Err()</code><strong>负责处理</strong><code>io.EOF</code>**，并将其转换为<code>nil</code>，如果在不遇到其他错误的情况下到达了文件结尾。</p>
+<p>最后，<code>sc.Err()</code>负责处理<code>io.EOF</code>，并将其转换为<code>nil</code>，如果在不遇到其他错误的情况下到达了文件结尾。</p>
 <br>
 
 <blockquote>
@@ -1297,7 +1297,7 @@
 
 <h4 id="7-1-2-WriteResponse"><a href="#7-1-2-WriteResponse" class="headerlink" title="7.1.2 WriteResponse"></a>7.1.2 WriteResponse</h4><br>
 
-<p>我的第二个例子是受到<strong>《Errors are values》</strong>博客文章的启发。</p>
+<p>我的第二个例子是受到《Errors are values》博客文章的启发。</p>
 <br>
 
 <p>在本次演示中，我们已经看到了处理打开、写入和关闭文件的示例。错误处理已经存在，但并不像操作可以封装在像 <strong><code>ioutil.ReadFile</code></strong> 和 <strong><code>ioutil.WriteFile</code></strong> 这样的辅助函数中那样压倒性。</p>
@@ -1306,7 +1306,7 @@
 <p>然而，在处理低级网络协议时，需要直接使用I/O基元来构建响应，因此错误处理可能会变得重复。请考虑下面这个构建 HTTP 响应的片段，它是一个 HTTP 服务器的一部分。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Header <span class="hljs-keyword">struct</span> &#123;<br>  Key, Value <span class="hljs-keyword">string</span><br>&#125;<br><br><span class="hljs-keyword">type</span> Status <span class="hljs-keyword">struct</span> &#123;<br>  Code   <span class="hljs-keyword">int</span><br>  Reason <span class="hljs-keyword">string</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WriteResponse</span><span class="hljs-params">(w io.Writer, st Status, headers []Header, body io.Reader)</span> <span class="hljs-title">error</span></span> &#123;<br>  _, err := fmt.Fprintf(w, <span class="hljs-string">&quot;HTTP/1.1 %d %s\r\n&quot;</span>, st.Code, st.Reason)<br>  <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> err<br>  &#125;<br><br>  <span class="hljs-keyword">for</span> _, h := <span class="hljs-keyword">range</span> headers &#123;<br>    _, err := fmt.Fprintf(w, <span class="hljs-string">&quot;%s: %s\r\n&quot;</span>, h.Key, h.Value)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> err<br>    &#125;<br>  &#125;<br><br>  <span class="hljs-keyword">if</span> _, err := fmt.Fprint(w, <span class="hljs-string">&quot;\r\n&quot;</span>); err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> err<br>  &#125;<br><br>  _, err = io.Copy(w, body)<br>  <span class="hljs-keyword">return</span> err<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>首先我们使用<code>fmt.Fprintf</code>构建状态行，并检查错误。然后对于每个标题，我们写入标题键和值，每次都检查错误。最后，我们使用额外的<code>\r\n</code>终止标题部分，检查错误，并将响应主体复制到客户端。最后，虽然我们不需要检查<code>io.Copy</code>的错误，但我们需要将其从**<code>io.Copy</code><strong>返回的两个返回值形式翻译成</strong><code>WriteResponse</code>**返回的单个返回值形式。</p>
+<p>首先我们使用<code>fmt.Fprintf</code>构建状态行，并检查错误。然后对于每个标题，我们写入标题键和值，每次都检查错误。最后，我们使用额外的<code>\r\n</code>终止标题部分，检查错误，并将响应主体复制到客户端。最后，虽然我们不需要检查<code>io.Copy</code>的错误，但我们需要将其从<code>io.Copy</code><strong>返回的两个返回值形式翻译成</strong><code>WriteResponse</code>返回的单个返回值形式。</p>
 <br>
 
 <p>这是很多重复的工作。但我们可以通过引入一个小的包装类型<code>errWriter</code>来简化它。</p>
@@ -1317,7 +1317,7 @@
 
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> errWriter <span class="hljs-keyword">struct</span> &#123;<br>  io.Writer<br>  err error<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *errWriter)</span> <span class="hljs-title">Write</span><span class="hljs-params">(buf []<span class="hljs-keyword">byte</span>)</span> <span class="hljs-params">(<span class="hljs-keyword">int</span>, error)</span></span> &#123;<br>  <span class="hljs-keyword">if</span> e.err != <span class="hljs-literal">nil</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>, e.err<br>  &#125;<br>  <span class="hljs-keyword">var</span> n <span class="hljs-keyword">int</span><br>  n, e.err = e.Writer.Write(buf)<br>  <span class="hljs-keyword">return</span> n, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WriteResponse</span><span class="hljs-params">(w io.Writer, st Status, headers []Header, body io.Reader)</span> <span class="hljs-title">error</span></span> &#123;<br>  ew := &amp;errWriter&#123;Writer: w&#125;<br>  fmt.Fprintf(ew, <span class="hljs-string">&quot;HTTP/1.1 %d %s\r\n&quot;</span>, st.Code, st.Reason)<br><br>  <span class="hljs-keyword">for</span> _, h := <span class="hljs-keyword">range</span> headers &#123;<br>    fmt.Fprintf(ew, <span class="hljs-string">&quot;%s: %s\r\n&quot;</span>, h.Key, h.Value)<br>  &#125;<br><br>  fmt.Fprint(ew, <span class="hljs-string">&quot;\r\n&quot;</span>)<br>  io.Copy(ew, body)<br>  <span class="hljs-keyword">return</span> ew.err<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>将**<code>errWriter</code><strong>应用于</strong><code>WriteResponse</code><strong>显著提高了代码的清晰度。每个操作不再需要用错误检查括起来。通过检查</strong><code>ew.err</code><strong>字段，将报告错误移动到函数末尾，避免了从</strong><code>io.Copy</code>**的返回值进行繁琐的转换。</p>
+<p>将<code>errWriter</code><strong>应用于</strong><code>WriteResponse</code><strong>显著提高了代码的清晰度。每个操作不再需要用错误检查括起来。通过检查</strong><code>ew.err</code><strong>字段，将报告错误移动到函数末尾，避免了从</strong><code>io.Copy</code>的返回值进行繁琐的转换。</p>
 <br>
 
 <h3 id="7-2-只处理错误一次"><a href="#7-2-只处理错误一次" class="headerlink" title="7.2 只处理错误一次"></a>7.2 只处理错误一次</h3><br>
@@ -1333,7 +1333,7 @@
 <p>但是，对单个错误做出多个决策也是有问题的。以下是我经常遇到的代码。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WriteAll</span><span class="hljs-params">(w io.Writer, buf []<span class="hljs-keyword">byte</span>)</span> <span class="hljs-title">error</span></span> &#123;<br>  _, err := w.Write(buf)<br>  <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>    log.Println(<span class="hljs-string">&quot;unable to write:&quot;</span>, err) <span class="hljs-comment">// annotated error goes to log file</span><br>    <span class="hljs-keyword">return</span> err                           <span class="hljs-comment">// unannotated error returned to caller</span><br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>在这个例子中，如果在**<code>w.Write</code>**过程中出现错误，将会写入一行日志文件，记录错误发生的文件和行数，并且错误也会被返回给调用者，调用者可能会记录它并将其返回，一直返回到程序的顶部。</p>
+<p>在这个例子中，如果在<code>w.Write</code>过程中出现错误，将会写入一行日志文件，记录错误发生的文件和行数，并且错误也会被返回给调用者，调用者可能会记录它并将其返回，一直返回到程序的顶部。</p>
 <br>
 
 <p>调用者可能正在执行相同的操作。</p>
@@ -1352,16 +1352,16 @@
 <p>我想进一步探讨这个问题，因为我不认为记录和返回问题仅仅是个人喜好的问题。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WriteConfig</span><span class="hljs-params">(w io.Writer, conf *Config)</span> <span class="hljs-title">error</span></span> &#123;<br>  buf, err := json.Marshal(conf)<br>  <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>    log.Printf(<span class="hljs-string">&quot;could not marshal config: %v&quot;</span>, err)<br>    <span class="hljs-comment">// oops, forgot to return</span><br>  &#125;<br>  <span class="hljs-keyword">if</span> err := WriteAll(w, buf); err != <span class="hljs-literal">nil</span> &#123;<br>    log.Println(<span class="hljs-string">&quot;could not write config: %v&quot;</span>, err)<br>    <span class="hljs-keyword">return</span> err<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
 
-<p>我经常看到的问题是程序员忘记从错误中返回。就像我们之前讨论的那样，Go的风格是使用**<code>guard clauses</code>**，随着函数的进行检查前置条件并早早地返回。</p>
+<p>我经常看到的问题是程序员忘记从错误中返回。就像我们之前讨论的那样，Go的风格是使用<code>guard clauses</code>，随着函数的进行检查前置条件并早早地返回。</p>
 <br>
 
 <p>在这个例子中，作者检查了错误，记录了它，但是忘记了返回。这导致了一个微妙的错误。</p>
 <br>
 
-<p>Go中错误处理的约定是，在出现错误时不能对其他返回值的内容做出任何假设。由于**<code>JSON marshalling</code>**失败，buf的内容是未知的，它可能什么也没有，但更糟糕的是它可能包含一半写入的JSON片段。</p>
+<p>Go中错误处理的约定是，在出现错误时不能对其他返回值的内容做出任何假设。由于<code>JSON marshalling</code>失败，buf的内容是未知的，它可能什么也没有，但更糟糕的是它可能包含一半写入的JSON片段。</p>
 <br>
 
-<p>由于程序员在检查和记录错误后忘记了返回，损坏的缓冲区将被传递给**<code>WriteAll</code><strong>，它可能会成功，因此配置文件将被错误地写入。但是函数将正常返回，唯一表明出现问题的是一个关于</strong><code>marshalling JSON</code>**的单个日志行，而不是写入配置的失败。</p>
+<p>由于程序员在检查和记录错误后忘记了返回，损坏的缓冲区将被传递给<code>WriteAll</code><strong>，它可能会成功，因此配置文件将被错误地写入。但是函数将正常返回，唯一表明出现问题的是一个关于</strong><code>marshalling JSON</code>的单个日志行，而不是写入配置的失败。</p>
 <br>
 
 <h4 id="7-2-1-给错误添加上下文"><a href="#7-2-1-给错误添加上下文" class="headerlink" title="7.2.1 给错误添加上下文"></a>7.2.1 给错误添加上下文</h4><br>
@@ -1375,7 +1375,7 @@
 <p>通过将错误注释与返回合并到一行中。</p>
 <br>
 
-<p>如果在写文件时发生I/O错误，则该错误的**<code>Error()</code>**方法将报告类似于以下内容的信息；</p>
+<p>如果在写文件时发生I/O错误，则该错误的<code>Error()</code>方法将报告类似于以下内容的信息；</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">could not write config: write failed: input/output error<br><br></code></pre></td></tr></table></figure>
 
 <br>
