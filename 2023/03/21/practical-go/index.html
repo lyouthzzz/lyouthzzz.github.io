@@ -14,7 +14,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="不合格后端学习笔记">
+  <meta name="description" content="Dave Cheney qcon-china非常好的一篇Go编程指导。">
   <meta name="author" content="youn">
   <meta name="keywords" content="">
   
@@ -229,7 +229,10 @@
             <h1 style="display: none">实用Go，编写可维护的Go代码的真实建议（译自Dave Cheney）</h1>
             
             <div class="markdown-body">
-              <blockquote>
+              <p>Dave Cheney qcon-china非常好的一篇Go编程指导。</p>
+<span id="more"></span>
+
+<blockquote>
 <p>🚦翻译自<strong>Dave Cheney</strong> <a target="_blank" rel="noopener" href="https://dave.cheney.net/practical-go/presentations/qcon-china.html" title="https://dave.cheney.net/practical-go/presentations/qcon-china.html"><strong>https://dave.cheney.net/practical-go/presentations/qcon-china.html</strong></a></p>
 </blockquote>
 <br>
@@ -989,7 +992,7 @@
 <p>例如，包<code>.../a/b/c/internal/d/e/f</code>只能由根为<code>.../a/b/c</code>的目录树中的代码导入。它不能被<code>.../a/b/g</code>或任何其他存储库中的代码导入。</p>
 <br>
 
-<h3 id="5-2-保持-main-包尽可能的小"><a href="#5-2-保持-main-包尽可能的小" class="headerlink" title="5.2 保持**main**包尽可能的小"></a>5.2 保持**<code>main</code>**包尽可能的小</h3><br>
+<h3 id="5-2-保持main包尽可能的小"><a href="#5-2-保持main包尽可能的小" class="headerlink" title="5.2 保持main包尽可能的小"></a>5.2 保持<code>main</code>包尽可能的小</h3><br>
 
 <p>您的主要功能和主要包应尽可能少地执行操作。这是因为 <code>main.main</code> 充当单例；程序中只能有一个 <code>main</code> 函数，包括测试。</p>
 <br>
